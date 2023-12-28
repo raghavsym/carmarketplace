@@ -1,0 +1,12 @@
+{
+    "id": "yourClientApplicationId",
+    "secret": "yourClientSecret",
+    "grants": [
+        "authorization_code",
+        "refresh_token"
+    ],
+    "redirectUris": [
+        "http://localhost:3001/oauthExample/callback"
+    ],
+    "type": "confidential"
+}
