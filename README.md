@@ -67,16 +67,7 @@ npm test
 
 ## Set up environment
 In root folder you can find `.env`. You can use this config or change it for your purposes.
-If you want to add some new variables, you also need to add them to interface and config object (Look `src/config/index.ts`)
+If you want to add some new variables, you also need to add them to interface and config object (Look `src/config/index.ts`) 
 
-## Usage as OAuth2.0 Server
-To use this generator as OAuth2.0 server you should implement client side, that will be handle your redirectUris and make requests to `/auth/token/` route. 
-
-### Swagger documentation will be available on route:
-Not implemented due to ime constraints
-```
-```
 ### Cloud platform
-Not deployed on cloud due to ime constraints
-
-Thank you
+Azure
