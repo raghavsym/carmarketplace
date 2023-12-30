@@ -8,7 +8,7 @@ import UserRouter from './UserRouter';
 import CarRouter from './CarRouter';
 import CarAvailability from './CarAvailabilityRouter';
 import ReservationRouter from './ReservationRouter';
-import authenticate from '../config/middleware/oAuth';
+import * as jwtConfig from '../config/middleware/jwtAuth';
 
 import  getCache   from '../services/RedisClient'
 
@@ -22,10 +22,10 @@ import  getCache   from '../services/RedisClient'
 export function init(app: express.Application): void {
     const router: express.Router = express.Router();
     
-    app.use('/v1/users', authenticate(), UserRouter);
-    app.use('/v1/cars', authenticate(), CarRouter);
-    app.use('/v1/reservation', authenticate(), ReservationRouter);
-    app.use('/v1/availability', authenticate(), getCache(), CarAvailability);
+    app.use('/v1/users', jwtConfig.isAuthenticated, UserRouter);
+    app.use('/v1/cars', jwtConfig.isAuthenticated, CarRouter);
+    app.use('/v1/reservation', jwtConfig.isAuthenticated, ReservationRouter);
+    app.use('/v1/availability', jwtConfig.isAuthenticated, getCache(), CarAvailability);
     app.use('/auth', AuthRouter);
 
     // app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc({

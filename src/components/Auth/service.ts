@@ -13,10 +13,10 @@ const AuthService: IAuthService = {
      * @returns {Promise <IUserModel>}
      * @memberof AuthService
      */
-    async createUser(body: IUserModel): Promise < IUserModel > {
+    async createUser(body: IUserModel): Promise < any > {
         try {
             const validate: Joi.ValidationResult = AuthValidation.createUser(body);
-
+           
             if (validate.error) {
                 throw new Error(validate.error.message);
             }
@@ -26,8 +26,7 @@ const AuthService: IAuthService = {
                 password: body.password,
                 name: body.name,
                 gender: body.gender,
-                location: body.location,
-                picture: body.picture
+                location: body.location
             });
 
             const query: IUserModel = await UserModel.findOne({
@@ -52,7 +51,6 @@ const AuthService: IAuthService = {
      */
     async getUser(body: IUserModel): Promise < IUserModel > {
         try {
-            console.log(body)
             const validate: Joi.ValidationResult = AuthValidation.getUser(body);
 
             if (validate.error) {

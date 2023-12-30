@@ -21,7 +21,7 @@ const development: IConfig = {
     database: {
         MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017',
         // MONGODB_URI: 'mongodb://mongo:27017/docker-db',
-        MONGODB_DB_MAIN: process.env.MONGODB_DB_MAIN || 'SOCAR',
+        MONGODB_DB_MAIN: process.env.MONGODB_DB_MAIN || 'CMP',
     },
     secret: process.env.SECRET || '@QEGTUI',
 };
@@ -30,7 +30,7 @@ const production: IConfig = {
     port: process.env.PORT || 3001,
     database: {
         MONGODB_URI: process.env.MONGODB_URI || 'mongodb://production_uri/',
-        MONGODB_DB_MAIN: process.env.MONGODB_DB_MAIN || 'SOCAR',
+        MONGODB_DB_MAIN: process.env.MONGODB_DB_MAIN || 'CMP',
     },
     secret: process.env.SECRET || '@QEGTUI',
 };

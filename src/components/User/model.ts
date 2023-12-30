@@ -20,10 +20,11 @@ export interface IUserModel extends Document {
     passwordResetToken: string;
     passwordResetExpires: Date;
     tokens: AuthToken[];
-    name: string;
-    gender: string;
-    location: string;
-    picture: string;
+    name: string,
+    gender: string,
+    location: string,
+    website: string,
+    picture: string,
     comparePassword: (password: string) => Promise < boolean > ;
     cars: any;
 }

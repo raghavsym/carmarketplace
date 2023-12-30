@@ -84,12 +84,6 @@ router.post('/signup', AuthComponent.signup);
 router.post('/login', AuthComponent.login);
 
 /**
- * POST method route
- * @example http://localhost:PORT/token
- */
-router.post('/token', AuthComponent.token);
-
-/**
  * @export {express.Router}
  */
 export default router;

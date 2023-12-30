@@ -21,23 +21,21 @@ class AuthValidation extends Validation {
      * @returns {Joi.ValidationResult}
      * @memberof UserValidation
      */
-     createUser(
+    createUser(
         params: IUserModel,
     ): Joi.ValidationResult {
         const schema: Joi.Schema = Joi.object().keys({
+            password: Joi.string().required(),
             email: Joi.string().email({
                 minDomainSegments: 2,
             }).required(),
-            password: Joi.string().required(),
             name: Joi.string().required(),
-            gender: Joi.string().required(),
             location: Joi.string().required(),
-            picture: Joi.string().allow(null, ''),
-            cars: Joi.array().items(Joi.object())
+            gender: Joi.string().required()
         });
-
         return schema.validate(params);
     }
+
     /**
      * @param {IUserModel} params
      * @returns {Joi.ValidationResult}
