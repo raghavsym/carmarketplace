@@ -13,7 +13,7 @@ import authenticate from '../config/middleware/oAuth';
 import  getCache   from '../services/RedisClient'
 
 
-const swaggerDef = require('../../swaggerDef');
+// const swaggerDef = require('../../swaggerDef');
 
 /**
  * @export
@@ -28,10 +28,10 @@ export function init(app: express.Application): void {
     app.use('/v1/availability', authenticate(), getCache(), CarAvailability);
     app.use('/auth', AuthRouter);
 
-    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc({
-        swaggerDefinition: swaggerDef,
-        apis: [path.join(__dirname, '../../src/**/**/*.ts')],
-    })));
+    // app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc({
+    //     swaggerDefinition: swaggerDef,
+    //     apis: [path.join(__dirname, '../../src/**/**/*.ts')],
+    // })));
 
     /**
      * @description No results returned mean the object is not found
