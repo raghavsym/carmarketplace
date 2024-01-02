@@ -5,6 +5,11 @@ import { ICarModel } from './model';
 import { IUserModel } from '../User/model';
 import UserService from '../User/service';
 
+
+export interface RequestWithUser extends Request {
+    user: object | string;
+}
+
 /**
  * @export
  * @param {Request} req
@@ -80,12 +85,15 @@ export async function findOne(req: Request, res: Response, next: NextFunction): 
  * @param {NextFunction} next
  * @returns {Promise < void >}
  */
-export async function create(req: Request, res: Response, next: NextFunction): Promise < void > {
+export async function create(req: RequestWithUser, res: Response, next: NextFunction): Promise < void > {
     try {
+        const user: any = req.user;
+        req.body.userId = user.userId;
+
         const car: ICarModel = await CarService.insert(req.body);
-        await UserService.findOne(req.body.userId)
+        await UserService.findOne(user.userId)
         .then( (user: IUserModel) => {
-            user.cars.push(car._id);
+            user.cars.push(car._id.toString());
             user.save();
         });
 

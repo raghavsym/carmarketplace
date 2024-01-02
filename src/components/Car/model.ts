@@ -16,7 +16,6 @@ export interface ICarModel extends Document {
     carModel: string;
     carPrice: number;
     carPicture: string;
-    userId: any;
     availableDateRange?: DateRange[]
 }
 

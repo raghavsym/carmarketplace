@@ -28,7 +28,7 @@ export function isAuthenticated(req: RequestWithUser, res: Response, next: NextF
     if (token) {
         try {
             const user: object | string = jwt.verify(token.toString(), app.get('secret'));
-
+            
             req.user = user;
 
             return next();

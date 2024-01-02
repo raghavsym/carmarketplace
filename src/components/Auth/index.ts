@@ -46,8 +46,7 @@ export async function signup(req: Request, res: Response, next: NextFunction): P
 export async function login(req: Request, res: Response, next: NextFunction): Promise < void > {
     try {
         const user: IUserModel = await AuthService.getUser(req.body);
-
-        const token: string = jwt.sign({ email: user.email }, app.get('secret'), {
+        const token: string = jwt.sign({ email: user.email, userId: user._id.toString() }, app.get('secret'), {
             expiresIn: '60m',
         });
 

@@ -89,9 +89,9 @@ const CarService: ICarService = {
         throw new Error(validate.error.message);
       }
 
-      const user: ICarModel = await CarModel.create(body);
+      const car: ICarModel = await CarModel.create(body);
 
-      return user;
+      return car;
     } catch (error) {
       throw new Error(error.message);
     }
