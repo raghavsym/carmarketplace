@@ -49,7 +49,11 @@ export interface ICarAvailabilityModel extends Document {
 //  *        $ref: '#/components/schemas/UserSchema'
 //  */
 const CarAvailabilitySchema: Schema = new Schema({
-    carId: String,
+    carId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Cars',
+        required: true
+    },
     userId: String,
     bookedSlot: [{
         renterId: String,

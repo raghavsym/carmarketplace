@@ -7,16 +7,16 @@ import CarAvailabilityModel, {
 } from "./model";
 import { ICarAvailabilityService, IDateRange, IFilteredCar } from "./interface";
 import CarModel from "../Car/model";
-import { setCache } from '../../services/RedisClient';
-
+import { setCache } from "../../services/RedisClient";
+import { pipeline } from "stream";
 
 /**
  * @export
  * @implements {ICarAvailabilityService}
  */
-const UserService: ICarAvailabilityService = {
+const CarAvailabilityService: ICarAvailabilityService = {
   /**
-   * @param {ICarAvailabilityModel} bookingData
+   * @param {ICarAvailabilityModel}
    * @returns {Promise < ICarAvailabilityModel >}
    * @memberof CarAvailabilityService
    */
@@ -57,86 +57,196 @@ const UserService: ICarAvailabilityService = {
     }
   },
 
+  async getCarAvailability(dateRange: IDateRange): Promise<any> {
+    const endDate = new Date(dateRange.endDate);
+    const startDate = new Date(dateRange.startDate);
+
+    try {
+      // STEP 1: Get the all available cars within range
+      
+      const query = [
+        {
+          // Step 1: Lookup to join caravailability collection
+          $lookup: {
+            from: "caravailability",
+            localField: "_id",
+            foreignField: "carId",
+            as: "bookedCarDetails"
+          }
+        },
+        {
+          // Step 2: Match to filter cars by available date range
+          $match: {
+            "availableDateRange.startDate": { $lte: startDate},
+            "availableDateRange.endDate": { $gte: endDate }
+          }
+        },
+        // Step 3: Add a field to check if the car is booked within the requested range
+        {
+          $match: {
+            "bookedCarDetails.bookedSlot": {
+              $not: {
+                $elemMatch: {
+                  $and: [
+                    { bookedStartDate: { $lte: endDate } }, // Booking starts before or on requestEndDate
+                    { bookedEndDate: { $gte: startDate } }, // Booking ends after or on requestStartDate
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          // Step 4: Project relevant fields
+          $project: {
+            carModel: 1,
+            carPrice: 1,
+            carPicture: 1,
+            availableDateRange: 1,
+            bookedCarDetails: 1
+          }
+        }
+      ] 
+      return await CarModel.aggregate(query);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+
   //  /**
   //  * @param {ICarAvailabilityModel} bookingData
   //  * @returns {Promise < ICarAvailabilityModel >}
   //  * @memberof CarAvailabilityService
   //  */
-  async getCarAvailability(dateRange: IDateRange): Promise<any> {
-    try {
-      // STEP 1:
-      const query = [
-        { $unwind: "$availableDateRange" },
-        {
-          $match: {
-              $and: [
-                {$and: [{"availableDateRange.startDate": {$lt: new Date(dateRange.endDate),},},{"availableDateRange.startDate": {$lt: new Date(dateRange.startDate),},},],},
-                {$and: [{"availableDateRange.endDate": {$gt: new Date(dateRange.endDate),},},{"availableDateRange.endDate": {$gt: new Date(dateRange.startDate),},},],},],
-          },
-        },
-      ];
-      const availableCars: any = await CarModel.aggregate(query);
+  // async getCarAvailability(dateRange: IDateRange): Promise<any> {
+  //   const endDate = new Date(dateRange.endDate);
+  //   const startDate = new Date(dateRange.startDate);
 
-      // STEP 2:
-      const availableCarsIds = availableCars.map((obj: any) => {
-        return obj._id.valueOf();
-      });
-      console.log(availableCarsIds);
-      if (availableCars?.availableDateRange?.length === 0) {
-        return {
-          message: "No car available currently.",
-        };
-      }
+  //   try {
+  //     // STEP 1: Get the all available cars within range
+      
+  //     const query = [
+  //       {
+  //         // Step 1: Lookup to join caravailability collection
+  //         $lookup: {
+  //           from: "caravailability",
+  //           localField: "_id",
+  //           foreignField: "carId",
+  //           as: "availabilityDetails"
+  //         }
+  //       },
+  //       {
+  //         // Step 2: Match to filter cars by available date range
+  //         $match: {
+  //           "availableDateRange.startDate": { $lte: startDate},
+  //           "availableDateRange.endDate": { $gte: endDate }
+  //         }
+  //       },
+  //       // {
+  //       //   // Step 2: Unwind the availabilityDetails array
+  //       //   $unwind: {
+  //       //     path: "$availabilityDetails",
+  //       //     preserveNullAndEmptyArrays: true // in case no bookings exist
+  //       //   }
+  //       // },
+  //       // Step 3: Add a field to check if the car is booked within the requested range
+  //       {
+  //         $match: {
+  //           "availabilityDetails.bookedSlot": {
+  //             $not: {
+  //               $elemMatch: {
+  //                 $and: [
+  //                   { bookedStartDate: { $lte: endDate } }, // Booking starts before or on requestEndDate
+  //                   { bookedEndDate: { $gte: startDate } }, // Booking ends after or on requestStartDate
+  //                 ],
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //       // {
+  //       //   // Step 4: Project relevant fields
+  //       //   $project: {
+  //       //     carModel: 1,
+  //       //     carPrice: 1,
+  //       //     availableDateRange: 1,
+  //       //     availabilityDetails: 1
+  //       //   }
+  //       // }
+  //     ]
+      
+  //     const availableCars: any = CarModel.aggregate(query);
 
-      const availQuery = [
-        // {"$unwind": "$bookedSlot"},
-        {
-          $match: {
-            $and: [
-              { carId: { $in: availableCarsIds } },
-              {
-                $or: [
-                  {$and: [{"bookedSlot.bookedStartDate": {$gt: new Date(dateRange.startDate),},},{"bookedSlot.bookedStartDate": {$lte: new Date(dateRange.endDate),},},],},
-                  {$and: [{"bookedSlot.bookedEndDate": {$gt: new Date(dateRange.startDate),},},{"bookedSlot.bookedEndDate": {$lte: new Date(dateRange.endDate),},},],},
-                  {$and: [{"bookedSlot.bookedStartDate": {$lte: new Date(dateRange.startDate),},},{"bookedSlot.bookedEndDate": {$lt: new Date(dateRange.endDate),},},],},
-                  {$and: [{"bookedSlot.bookedStartDate": {$gte: new Date(dateRange.startDate),},},{"bookedSlot.bookedEndDate": {$gt: new Date(dateRange.endDate),},},],},
-                  {$and: [{"bookedSlot.bookedStartDate": {$lt: new Date(dateRange.startDate),},},{"bookedSlot.bookedEndDate": {$gt: new Date(dateRange.endDate),},},],},],
-              },
-            ],
-          },
-        },
-        {
-          $project: {
-            carId: 1,
-          },
-        },
-      ];
-      const isAvailable: any = await CarAvailabilityModel.aggregate(availQuery);
+  //     // STEP 2:
+  //     // const availableCarsIds = availableCars.map((obj: any) => {
+  //     //   return obj._id.valueOf();
+  //     // });
 
-      // STEP 3:
-      if (isAvailable?.length > 0) {
-        const availableFilteredData =  availableCars.filter((obj: any) => {
-          let found = isAvailable.find((avail: any) => {
-            let _id = obj._id.valueOf();
-            return avail.carId === _id;
-          });
-          if (found) {
-            return true;
-          }
-          return false;
-        });
-        // Caching data
-        await setCache( dateRange.userId, availableFilteredData);
-        // const products = await cache.set(dateRange.userId, availableFilteredData)
-        return availableFilteredData;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  },
+  //     // if (availableCars?.availableDateRange?.length === 0) {
+  //     //   return {
+  //     //     message: "No car available currently.",
+  //     //   };
+  //     // }
+  //     // console.log('availableCars', availableCars)
+
+  //     // const availQuery = [
+  //     //   { $match: { carId: { $in: availableCarsIds } } },
+  //     //   {
+  //     //     $match: {
+  //     //       bookedSlot: {
+  //     //         $not: {
+  //     //           $elemMatch: {
+  //     //             $and: [
+  //     //               { bookedStartDate: { $lt: endDate } }, // Booking starts before or on requestEndDate
+  //     //               { bookedEndDate: { $gt: startDate } }, // Booking ends after or on requestStartDate
+  //     //             ],
+  //     //           },
+  //     //         },
+  //     //       },
+  //     //     },
+  //     //   },
+  //     //   // {
+  //     //   //   $project: {
+  //     //   //     carId: 1,
+  //     //   //   },
+  //     //   // },
+  //     // ];
+
+  //     // const isAvailable: any = await CarAvailabilityModel.aggregate(availQuery); //b
+  //     // console.log("isAvailable",isAvailable)
+  //     // STEP 3:
+  //     // if (isAvailable?.length > 0) {
+  //     //   const availableFilteredData = availableCars.filter((obj: any) => {
+  //     //     isAvailable.find((avail: any) => {
+  //     //       let _id = obj._id.valueOf();
+  //     //       if(avail.carId === _id){
+  //     //         obj['availableDateRange'] = {
+  //     //           startDate: startDate,
+  //     //           endDate: endDate
+  //     //         }
+  //     //       }
+  //     //     });
+  //     //     return true;
+  //         // if (found) {
+  //         //   obj['availableDateRange'] = {
+  //         //     startDate: avail["bookedSlot"].
+  //         //     endDate: 
+  //         //   }
+  //         //   return true;
+  //         // }
+  //         // return true;
+  //       // });
+  //       // Caching data
+  //       // await setCache( dateRange.userId, availableFilteredData);
+  //       // const products = await cache.set(dateRange.userId, availableFilteredData)
+  //       return availableCars;
+  //     // } else {
+  //     //   return [];
+  //     // }
+  //   } catch (error) {
+  //     throw new Error(error.message);
+  //   }
+  // },
 };
 
-
-export default UserService;
+export default CarAvailabilityService;

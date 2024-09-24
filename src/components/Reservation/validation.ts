@@ -28,6 +28,8 @@ class ReservationValidation extends Validation {
         const schema: Joi.Schema = Joi.object().keys({
             carId: Joi.string().required(),
             renterId: Joi.string().required(),
+            pickupLocation: Joi.string().required(),
+            dropoffLocation: Joi.string().required(),
             reservationStartDate: Joi.date().iso().required(),
             reservationEndDate: Joi.date().iso().greater(Joi.ref('reservationStartDate')).required(),
             status: Joi.number().required()

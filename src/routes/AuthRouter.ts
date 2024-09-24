@@ -82,6 +82,7 @@ router.post('/signup', AuthComponent.signup);
  *              message: Invalid credentials
  */
 router.post('/login', AuthComponent.login);
+router.post('/logout', AuthComponent.logout);
 
 /**
  * @export {express.Router}

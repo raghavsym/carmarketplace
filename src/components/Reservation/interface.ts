@@ -1,4 +1,5 @@
 import { IReservationModel, reservationStatusEnum } from './model';
+import { Request } from 'express';
 
 /**
  * @export
@@ -11,8 +12,15 @@ export interface IReservationService {
      * @returns {Promise<IReservationModel>}
      * @memberof IReservationService
      */
-    reservation(reservation: IReservation, carId: string): Promise<IReservationModel>;
+    reservation(reservation: any): Promise<IReservationModel>;
+
+    /**
+     * @param Request
+     * @returns {Promise<IMyBookingsModel>}
+     * @memberof IReservationService
+     */
     
+    myBookings(renterId: string): Promise<IReservationModel[]>;
 }
 
 /**
@@ -25,5 +33,7 @@ export interface IReservation {
     userId?: string,
     reservationStartDate: Date,
     reservationEndDate: Date,
+    pickupLocation: string,
+    dropoffLocation: string,
     status: reservationStatusEnum // 0 completed, 1 cancelled, 2 active
 }

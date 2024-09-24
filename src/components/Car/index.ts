@@ -7,7 +7,9 @@ import UserService from '../User/service';
 
 
 export interface RequestWithUser extends Request {
-    user: object | string;
+    user: {
+        userId: string
+    }
 }
 
 /**
@@ -17,10 +19,10 @@ export interface RequestWithUser extends Request {
  * @param {NextFunction} next
  * @returns {Promise < void >}
  */
-export async function findAll(req: Request, res: Response, next: NextFunction): Promise < void > {
+export async function findAll(req: RequestWithUser, res: Response, next: NextFunction): Promise < void > {
     try {
-        const cars: ICarModel[] = await CarService.findAll(req.body.userId);
-
+        const cars: ICarModel[] = await CarService.findAll(req.user.userId);
+        // const cars: ICarModel[] = await CarService.findAll();
         res.status(200).json(cars);
     } catch (error) {
         next(new HttpError(error.message.status, error.message));
@@ -34,8 +36,11 @@ export async function findAll(req: Request, res: Response, next: NextFunction): 
  * @param {NextFunction} next
  * @returns {Promise < void >}
  */
- export async function findAllByFilter(req: Request, res: Response, next: NextFunction): Promise < void > {
+ export async function findAllByFilter(req: RequestWithUser, res: Response, next: NextFunction): Promise < void > {
     try {
+        const user: any = req.user;
+        req.body.userId = user.userId;
+
         const cars: ICarModel[] = await CarService.findAllByFilter(req.body);
 
         res.status(200).json(cars);
@@ -53,7 +58,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction): 
  */
  export async function setCarAvailability(req: Request, res: Response, next: NextFunction): Promise < void > {
     try {
-        const cars: ICarModel = await CarService.setCarAvailability(req.body, req.params.id);
+        const cars: ICarModel = await CarService.setCarAvailability(req.body);
 
         res.status(200).json(cars);
     } catch (error) {
@@ -85,7 +90,7 @@ export async function findOne(req: Request, res: Response, next: NextFunction): 
  * @param {NextFunction} next
  * @returns {Promise < void >}
  */
-export async function create(req: RequestWithUser, res: Response, next: NextFunction): Promise < void > {
+export async function add(req: RequestWithUser, res: Response, next: NextFunction): Promise < void > {
     try {
         const user: any = req.user;
         req.body.userId = user.userId;

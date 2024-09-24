@@ -21,7 +21,7 @@ export interface ICarService {
      * @returns {Promise<ICarModel>}
      * @memberof ICarService
      */
-    setCarAvailability(body: DateRange, id: string): Promise<ICarModel>;
+    setCarAvailability(body: DateRange): Promise<ICarModel>;
 
     /**
      * @param {string} code

@@ -6,7 +6,9 @@ import { ReservationComponent } from '../components';
  */
 const router: Router = Router();
 
-router.post('/:id', ReservationComponent.carReservation);
+router.post('/', ReservationComponent.carReservation);
+
+router.get('/myBookings', ReservationComponent.myBookings);
 
 /**
  * @export {express.Router}

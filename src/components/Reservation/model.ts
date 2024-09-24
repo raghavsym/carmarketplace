@@ -1,10 +1,10 @@
-import { Document, Schema } from 'mongoose';
-import * as connections from '../../config/connection/connection';
+import { Document, Mongoose, Schema } from "mongoose";
+import * as connections from "../../config/connection/connection";
 
 export enum reservationStatusEnum {
-    COMPLETED = 0,
-    CANCELLED = 1,
-    ACTIVE    = 2
+  COMPLETED = 0,
+  CANCELLED = 1,
+  ACTIVE = 2,
 }
 /**
  * @export
@@ -12,23 +12,30 @@ export enum reservationStatusEnum {
  * @extends {Document}
  */
 export interface IReservationModel extends Document {
-    carId: string;
-    renterId: string;
-    reservationStartDate: Date;
-    reservationEndDate: Date;
-    status: reservationStatusEnum;
+  carId: any;
+  renterId: any;
+  reservationStartDate: Date;
+  reservationEndDate: Date;
+  pickupLocation: string;
+  dropoffLocation: string;
+  status: reservationStatusEnum;
 }
 
-const ReservationSchema: Schema = new Schema({
-    carId: String,
-    renterId: String,
+const ReservationSchema: Schema = new Schema(
+  {
+    carId: { type: Schema.Types.ObjectId, ref: "Cars" },
+    renterId: { type: Schema.Types.ObjectId, ref: "Users" },
     reservationStartdate: Date,
     reservationEndDate: Date,
-    status: Number
-}, {
-    collection: 'reservations',
+    pickupLocation: String,
+    dropoffLocation: String,
+    status: Number,
+  },
+  {
+    collection: "reservations",
     strict: false,
-    timestamps: true
-});
+    timestamps: true,
+  }
+);
 
-export default connections.db.model< IReservationModel >('Reservations', ReservationSchema);
+export default connections.db.model<IReservationModel>("Reservations", ReservationSchema);

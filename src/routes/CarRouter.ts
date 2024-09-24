@@ -10,11 +10,11 @@ router.get('/getCars', CarComponent.findAll);
 
 router.post('/getCarsByFilter', CarComponent.findAllByFilter);
 
-router.post('/createCar', CarComponent.create);
+router.post('/addCar', CarComponent.add);
 
 router.get('/:id', CarComponent.findOne);
 
-router.post('/setCarAvailability/:id', CarComponent.setCarAvailability);
+router.post('/setCarAvailability', CarComponent.setCarAvailability);
 
 
 

@@ -19,7 +19,7 @@ const REDIS_HOST = '6379';
 const development: IConfig = {
     port: process.env.PORT || 3001,
     database: {
-        MONGODB_URI: process.env.MONGODB_URI || 'ongodb+srv://admin:admin123@cmp.zq546kr.mongodb.net/',
+        MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://admin:admin123@cmp.zq546kr.mongodb.net/?retryWrites=true&w=majority&appName=CMP',
         // MONGODB_URI: 'mongodb://mongo:27017/docker-db',
         MONGODB_DB_MAIN: process.env.MONGODB_DB_MAIN || 'CMP',
     },

@@ -15,10 +15,11 @@ const CarService: ICarService = {
    */
   async findAll(userId): Promise<ICarModel[]> {
     try {
-      return await CarModel.find({ userId: { $ne: userId } }).select([
+      return await CarModel.find({ userId: userId }).select([
         "carModel",
         "carPrice",
         "carPicture",
+        "availableDateRange"
       ]);
     } catch (error) {
       throw new Error(error.message);
@@ -31,22 +32,21 @@ const CarService: ICarService = {
    */
   async findAllByFilter(body: any): Promise<ICarModel[]> {
     try {
-      const subQuery: any = [
+      const subQuery: any = 
         {
           $match: {
             $and: [{ userId: { $ne: body.userId } }],
           },
-        },
-      ];
+        };
       if (body && body.carModel) {
-        subQuery[0]["$match"]["$and"].push({ carModel: body.carModel });
+        subQuery["$match"]["$and"].push({ carModel: body.carModel });
       }
       if (body && body.price) {
-        subQuery[0]["$match"]["$and"].push({
+        subQuery["$match"]["$and"].push({
           carPrice: { $lte: body.price.end, $gte: body.price.start },
         });
       }
-      return await CarModel.aggregate(subQuery);
+      return await CarModel.aggregate([subQuery]);
     } catch (error) {
       throw new Error(error.message);
     }
@@ -98,18 +98,17 @@ const CarService: ICarService = {
   },
 
   /**
-   * @param {string} id
    * @returns {Promise < ICarModel >}
    * @memberof CarService
    */
-  async setCarAvailability(body: DateRange, carId: string): Promise<ICarModel> {
+  async setCarAvailability(body: DateRange): Promise<ICarModel> {
     try {
       const dateRange: DateRange = {
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
       };
       const validate: Joi.ValidationResult = CarValidation.dateRange(dateRange);
-
+      const carId: string = body.carId;
       if (validate.error) {
         throw new Error(validate.error.message);
       }

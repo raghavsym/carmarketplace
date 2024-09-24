@@ -5,7 +5,7 @@ import { CarAvailabilityComponent } from '../components';
  */
 const router: Router = Router();
 
-router.post('/setCarBooking', CarAvailabilityComponent.setCarAvailability);
+router.post('/setCarAvailability', CarAvailabilityComponent.setCarAvailability);
 router.post('/getCarAvailability', CarAvailabilityComponent.getCarAvailability);
 
 /**

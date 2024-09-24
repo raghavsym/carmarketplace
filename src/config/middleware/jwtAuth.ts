@@ -1,11 +1,11 @@
-import * as jwt from 'jsonwebtoken';
-import { NextFunction, Request, Response } from 'express';
-import * as http from 'http';
-import app from '../server/server';
-import HttpError from '../error';
+import * as jwt from "jsonwebtoken";
+import { NextFunction, Request, Response } from "express";
+import * as http from "http";
+import app from "../server/server";
+import HttpError from "../error";
 
 interface RequestWithUser extends Request {
-    user: object | string;
+  user: object | string;
 }
 
 /**
@@ -22,20 +22,30 @@ interface RequestWithUser extends Request {
  *       in: header
  *       name: x-access-token
  */
-export function isAuthenticated(req: RequestWithUser, res: Response, next: NextFunction): void {
-    const token: string | string[] = req.headers['x-access-token'];
+export function isAuthenticated(
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+): void {
 
-    if (token) {
-        try {
-            const user: object | string = jwt.verify(token.toString(), app.get('secret'));
-            
-            req.user = user;
+  const cookies: string = req.headers.cookie;
 
-            return next();
-        } catch (error) {
-            return next(new HttpError(401, http.STATUS_CODES[401]));
-        }
+  const tokenCookie = cookies.split(";").find((cookie) => cookie.trim().startsWith("token="));
+  const token = tokenCookie ? tokenCookie.split("=")[1] : null;
+
+  if (token) {
+    try {
+      const user: object | string = jwt.verify(
+        token.toString(),
+        app.get("secret")
+      );
+
+      req.user = user;
+      return next();
+    } catch (error) {
+      return next(new HttpError(401, http.STATUS_CODES[401]));
     }
+  }
 
-    return next(new HttpError(400, 'No token provided'));
+  return next(new HttpError(400, "No token provided"));
 }

@@ -4,7 +4,8 @@ import * as connections from '../../config/connection/connection';
 
 export type DateRange = {
     startDate: Date,
-    endDate: Date
+    endDate: Date,
+    carId?: string
 }
 
 /**
